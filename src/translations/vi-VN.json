@@ -1,0 +1,55 @@
+{
+  "myapp": {
+    "common_appName": {
+      "full": "MyApp React Native",
+      "initials": "RNB"
+    },
+    "common_error": "Đã có lỗi xảy ra.",
+    "auth": {
+      "login_title": "Đăng nhập",
+      "login_subtitle": "Chào mừng quay lại! Vui lòng đăng nhập để tiếp tục.",
+      "email_label": "Email",
+      "email_placeholder": "Nhập email của bạn",
+      "password_label": "Mật khẩu",
+      "password_placeholder": "Nhập mật khẩu của bạn",
+      "forgot_password": "Quên mật khẩu?",
+      "login_cta": "Đăng nhập",
+      "login_loading": "Đang đăng nhập...",
+      "register_title": "Đăng ký",
+      "register_subtitle": "Tạo tài khoản mới để bắt đầu giao dịch.",
+      "name_label": "Họ và tên",
+      "name_placeholder": "Nhập họ và tên của bạn",
+      "phone_label": "Điện thoại (tùy chọn)",
+      "phone_placeholder": "Nhập số điện thoại của bạn",
+      "register_cta": "Đăng ký",
+      "register_loading": "Đang đăng ký...",
+      "otp_title": "Xác thực OTP",
+      "otp_description": "Nhập mã OTP đã gửi đến",
+      "otp_resend": "Gửi lại OTP",
+      "otp_not_received": "Chưa nhận được OTP?",
+      "reset_title": "Đặt lại mật khẩu",
+      "reset_subtitle": "Nhập mật khẩu mới của bạn.",
+      "reset_cta": "Đặt lại mật khẩu",
+      "reset_loading": "Đang xử lý...",
+      "error_invalid_credentials": "Email hoặc mật khẩu không đúng",
+      "success_otp_sent": "OTP đã được gửi đến email của bạn",
+      "success_password_reset": "Mật khẩu đã được đặt lại thành công"
+    },
+    "screen_example": {
+      "hello_user": "Xin chào, tôi tên là {{name}}",
+      "title": "Chào mừng đến với $t(common_appName.full)",
+      "description": "Bạn muốn khám phá một số tính năng? Chỉ cần nhấp vào một trong ba nút ở cuối màn hình. Nút đầu tiên cho phép bạn gọi REST API. Nút thứ hai cho phép bạn thay đổi màu chủ đề. Và nút thứ ba cho phép bạn thay đổi ngôn ngữ."
+    },
+    "home": {
+      "categories": "Danh mục",
+      "view_all": "Xem tất cả",
+      "featured": "Nổi bật",
+      "featured_products": "Cặp giao dịch nổi bật"
+    },
+    "error_boundary": {
+      "title": "Rất tiếc! Đã có lỗi xảy ra.",
+      "description": "Chúng tôi xin lỗi vì sự bất tiện này. Vui lòng thử lại sau.",
+      "cta": "Tải lại màn hình"
+    }
+  }
+}

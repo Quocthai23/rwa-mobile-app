@@ -1,0 +1,55 @@
+{
+  "myapp": {
+    "common_appName": {
+      "full": "React Native MyApp",
+      "initials": "RNB"
+    },
+    "common_error": "Oops! Something went wrong.",
+    "auth": {
+      "login_title": "Sign In",
+      "login_subtitle": "Welcome back! Please sign in to continue.",
+      "email_label": "Email",
+      "email_placeholder": "Enter your email",
+      "password_label": "Password",
+      "password_placeholder": "Enter your password",
+      "forgot_password": "Forgot password?",
+      "login_cta": "Sign In",
+      "login_loading": "Signing in...",
+      "register_title": "Sign Up",
+      "register_subtitle": "Create a new account to start trading.",
+      "name_label": "Full name",
+      "name_placeholder": "Enter your full name",
+      "phone_label": "Phone (optional)",
+      "phone_placeholder": "Enter your phone number",
+      "register_cta": "Sign Up",
+      "register_loading": "Signing up...",
+      "otp_title": "OTP Verification",
+      "otp_description": "Enter the OTP sent to",
+      "otp_resend": "Resend OTP",
+      "otp_not_received": "Didn't receive the OTP?",
+      "reset_title": "Reset password",
+      "reset_subtitle": "Enter your new password.",
+      "reset_cta": "Reset password",
+      "reset_loading": "Processing...",
+      "error_invalid_credentials": "Invalid email or password",
+      "success_otp_sent": "OTP has been sent to your email",
+      "success_password_reset": "Password has been reset successfully"
+    },
+    "screen_example": {
+      "hello_user": "Hi, my name is {{name}}",
+      "title": "Welcome on The $t(common_appName.full)",
+      "description": "Do you want to discover some features? Just click on one of the three buttons at the bottom of the screen. The first allows you to call a REST API. The second lets you change the theme color. And the third allows you to change the language."
+    },
+    "home": {
+      "categories": "Categories",
+      "view_all": "View All",
+      "featured": "Featured",
+      "featured_products": "Featured Pairs"
+    },
+    "error_boundary": {
+      "title": "Oops! Something went wrong.",
+      "description": "We are sorry for the inconvenience. Please try again later.",
+      "cta": "Reload the screen"
+    }
+  }
+}

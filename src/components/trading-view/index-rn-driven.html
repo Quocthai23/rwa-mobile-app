@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TradingView Chart - RN Driven</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #ffffff;
+        color: #000000;
+        overflow: hidden;
+      }
+
+      #tradingview_chart_container {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .loading-overlay.hidden {
+        display: none;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- TradingView Chart Container -->
+    <div id="tradingview_chart_container"></div>
+
+    <!-- TradingView Charting Library -->
+    <script
+      src="./charting_library/charting_library.js"
+      onerror="console.error('❌ Failed to load charting_library.js')"></script>
+
+    <!-- RN-Driven Datafeed -->
+    <script
+      src="./rn-driven-datafeed.js"
+      onerror="
+        console.error('❌ Failed to load rn-driven-datafeed.js')
+      "></script>
+
+    <!-- Chart Initialization for RN-Driven Mode -->
+    <script>
+      // Convert seconds to TradingView resolution format
+      function secondsToResolution(seconds) {
+        const mins = seconds / 60
+        if (mins < 60) {
+          return mins.toString() // "1", "5", "15", "30"
+        }
+        const hours = mins / 60
+        if (hours < 24) {
+          return (hours * 60).toString() // "60", "240" (60min, 240min)
+        }
+        const days = hours / 24
+        return days + 'D' // "1D", "1W"
+      }
+
+      // Parse URL parameters
+      const urlParams = new URLSearchParams(window.location.search)
+      // Read from injected globals first (set by RN via injectedJavaScriptBeforeContentLoaded),
+      // fall back to URL params, then defaults
+      const defaultSymbol =
+        window.__RN_SYMBOL__ || urlParams.get('symbol') || 'BTCUSD'
+      const intervalInSeconds =
+        window.__RN_INTERVAL__ ||
+        parseInt(
+          urlParams.get('interval') || urlParams.get('timeframe') || '60',
+        )
+      const defaultInterval = secondsToResolution(intervalInSeconds)
+      const theme = window.__RN_THEME__ || urlParams.get('theme') || 'Light'
+
+      console.log('📊 Chart config:', {
+        symbol: defaultSymbol,
+        intervalInSeconds,
+        defaultInterval,
+        source: window.__RN_SYMBOL__ ? 'injectedJS' : 'urlParams',
+      })
+
+      let tvWidget = null
+      let currentDatafeed = null
+
+      function hideLoading() {
+        const overlay = document.getElementById('loading-overlay')
+        overlay.classList.add('hidden')
+      }
+      // Expose globally for datafeed access
+      window.hideLoading = hideLoading
+
+      function showError(message) {
+        console.error('Chart error:', message)
+        alert('Chart Error: ' + message)
+        hideLoading()
+      }
+
+      // Initialize chart
+      function initChart() {
+        console.log('🚀 initChart called')
+        try {
+          // Check if TradingView library loaded
+          if (typeof TradingView === 'undefined') {
+            console.error('❌ TradingView library not loaded!')
+            throw new Error('TradingView library not loaded')
+          }
+
+          console.log('✅ TradingView library loaded')
+
+          // Create RN-driven datafeed
+          currentDatafeed = new window.RNDrivenDatafeed()
+
+          // Widget options
+          const widgetOptions = {
+            symbol: defaultSymbol,
+            interval: defaultInterval,
+            container: 'tradingview_chart_container',
+            datafeed: currentDatafeed,
+            library_path: './charting_library/',
+            locale: 'en',
+            disabled_features: [
+              'use_localstorage_for_settings',
+              'header_symbol_search',
+              //   "symbol_search_hot_key",
+              'header_saveload', // Tắt nút Save/Load layout
+              'create_volume_indicator_by_default', // ⭐ Tắt volume indicator mặc định
+              // Uncomment để tắt thêm:
+              // "left_toolbar", // Tắt toolbar trái
+              //   "header_widget", // Tắt header widget
+              // "timeframes_toolbar", // Tắt timeframe buttons
+              // "display_market_status", // Tắt market status
+              'header_screenshot', // Tắt nút screenshot
+              // "header_chart_type", // Tắt dropdown chọn chart type
+              'header_compare', // Tắt nút compare
+              // "header_undo_redo", // Tắt undo/redo
+              'header_settings', // Tắt nút settings
+              // "header_indicators", // Tắt nút indicators
+              'header_fullscreen_button', // Tắt nút fullscreen
+            ],
+            enabled_features: [
+              // Uncomment để bật:
+              // "study_templates", // Cho phép save study templates
+              // "side_toolbar_in_fullscreen_mode", // Hiện toolbar trong fullscreen
+            ],
+            charts_storage_url: 'https://saveload.tradingview.com',
+            charts_storage_api_version: '1.1',
+            client_id: 'tradingview.com',
+            user_id: 'public_user_id',
+            fullscreen: false,
+            autosize: true,
+            theme: theme,
+            custom_css_url: './custom.css',
+            overrides: {
+              'mainSeriesProperties.candleStyle.upColor': '#089981',
+              'mainSeriesProperties.candleStyle.downColor': '#f23645',
+              'mainSeriesProperties.candleStyle.borderUpColor': '#089981',
+              'mainSeriesProperties.candleStyle.borderDownColor': '#f23645',
+              'mainSeriesProperties.candleStyle.wickUpColor': '#089981',
+              'mainSeriesProperties.candleStyle.wickDownColor': '#f23645',
+            },
+          }
+
+          // Create widget
+          console.log('📊 Creating TradingView widget...')
+          tvWidget = new TradingView.widget(widgetOptions)
+          console.log('✅ Widget created, waiting for onChartReady...')
+
+          // Widget ready
+          tvWidget.onChartReady(() => {
+            console.log('✅ Chart ready in RN-driven mode')
+            hideLoading()
+
+            // Notify React Native that chart is ready
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(
+                JSON.stringify({
+                  type: 'CHART_READY',
+                  symbol: defaultSymbol,
+                  interval: defaultInterval,
+                }),
+              )
+            }
+
+            // Listen for symbol change
+            tvWidget
+              .activeChart()
+              .onSymbolChanged()
+              .subscribe(null, function () {
+                const newSymbol = tvWidget.activeChart().symbol()
+                console.log('🔔 Symbol changed to:', newSymbol)
+
+                // Notify React Native
+                if (window.ReactNativeWebView) {
+                  window.ReactNativeWebView.postMessage(
+                    JSON.stringify({
+                      type: 'SYMBOL_CHANGED',
+                      symbol: newSymbol,
+                      interval: tvWidget.activeChart().resolution(),
+                    }),
+                  )
+                }
+              })
+
+            // Listen for interval change
+            tvWidget
+              .activeChart()
+              .onIntervalChanged()
+              .subscribe(null, function () {
+                const newInterval = tvWidget.activeChart().resolution()
+                console.log('🔔 Interval changed to:', newInterval)
+
+                // Notify React Native
+                if (window.ReactNativeWebView) {
+                  window.ReactNativeWebView.postMessage(
+                    JSON.stringify({
+                      type: 'INTERVAL_CHANGED',
+                      symbol: tvWidget.activeChart().symbol(),
+                      interval: newInterval,
+                    }),
+                  )
+                }
+              })
+          })
+
+          // Store reference globally
+          window.tvWidget = tvWidget
+          window.currentDatafeed = currentDatafeed
+        } catch (error) {
+          console.error('Error initializing chart:', error)
+          showError(error.message)
+        }
+      }
+
+      // Wait for TradingView library to load
+      console.log(
+        '⏳ Waiting for libraries to load... TradingView:',
+        typeof TradingView,
+        'RNDrivenDatafeed:',
+        typeof window.RNDrivenDatafeed,
+      )
+
+      // Always wait for window load to ensure all scripts are loaded
+      window.addEventListener('load', () => {
+        console.log('📦 Window loaded, checking libraries...')
+        console.log('TradingView:', typeof TradingView)
+        console.log('RNDrivenDatafeed:', typeof window.RNDrivenDatafeed)
+        initChart()
+      })
+
+      // Fallback: Hide loading after 5 seconds if chart still not ready
+      setTimeout(() => {
+        const overlay = document.getElementById('loading-overlay')
+        if (overlay && !overlay.classList.contains('hidden')) {
+          console.log('⚠️ Chart not ready after 5s, hiding loading anyway')
+          hideLoading()
+        }
+      }, 5000)
+
+      // Global error handler
+      window.addEventListener('error', function (e) {
+        console.error('Global error:', e.error)
+        showError('Script Error: ' + e.message)
+      })
+
+      // Expose API for external control
+      window.chartAPI = {
+        // Get current symbol
+        getSymbol: function () {
+          try {
+            return window.tvWidget?.activeChart()?.symbol()
+          } catch (e) {
+            return null
+          }
+        },
+
+        // Get current interval
+        getInterval: function () {
+          try {
+            return window.tvWidget?.activeChart()?.resolution()
+          } catch (e) {
+            return null
+          }
+        },
+
+        // Change symbol (called from RN via postMessage)
+        changeSymbol: function (newSymbol) {
+          try {
+            if (window.tvWidget && window.tvWidget.activeChart) {
+              console.log('🔄 Changing symbol to:', newSymbol)
+              window.tvWidget.activeChart().setSymbol(newSymbol, function () {
+                console.log('✅ Symbol changed to:', newSymbol)
+              })
+            }
+          } catch (e) {
+            console.error('❌ Error changing symbol:', e)
+          }
+        },
+      }
+
+      // Listen for messages FROM React Native
+      // Uses deduplication so that iOS/Android WebView firing the event on both
+      // document and window doesn't cause changeSymbol to run twice.
+      if (typeof document !== 'undefined') {
+        let _lastHtmlMsgData = null
+
+        const handleRNMessage = function (event) {
+          if (event.data === _lastHtmlMsgData) {
+            _lastHtmlMsgData = null
+            return
+          }
+          _lastHtmlMsgData = event.data
+
+          try {
+            const message =
+              typeof event.data === 'string'
+                ? JSON.parse(event.data)
+                : event.data
+
+            console.log('📨 [HTML] Message from RN:', message.type)
+
+            if (message.type === 'CHANGE_SYMBOL' && message.symbol) {
+              // Guard: skip if chart already showing this symbol
+              const currentSym = window.chartAPI.getSymbol()
+              if (currentSym === message.symbol) {
+                console.log('⏭️ [HTML] Already on symbol:', message.symbol)
+                return
+              }
+              window.chartAPI.changeSymbol(message.symbol)
+            }
+          } catch (e) {
+            console.error('❌ Error handling RN message:', e)
+          }
+        }
+
+        document.addEventListener('message', handleRNMessage)
+        window.addEventListener('message', handleRNMessage)
+      }
+    </script>
+  </body>
+</html>

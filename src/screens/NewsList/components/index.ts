@@ -1,0 +1,1 @@
+export { NewsEventItem } from './NewsEventItem'

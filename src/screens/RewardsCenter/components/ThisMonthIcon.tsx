@@ -1,0 +1,17 @@
+import Svg, { Path } from 'react-native-svg'
+
+type Props = { size?: number; color?: string }
+
+export function ThisMonthIcon({ size = 19, color = '#374151' }: Props) {
+  return (
+    <Svg width={size} height={size} viewBox='0 0 19 19' fill='none'>
+      <Path
+        d='M12.3648 12.3648C15.2169 11.9829 17.4167 9.54002 17.4167 6.58333C17.4167 3.36167 14.805 0.75 11.5833 0.75C8.62665 0.75 6.18374 2.94972 5.80189 5.80189M12.4167 11.5833C12.4167 14.805 9.80499 17.4167 6.58333 17.4167C3.36167 17.4167 0.75 14.805 0.75 11.5833C0.75 8.36167 3.36167 5.75 6.58333 5.75C9.80499 5.75 12.4167 8.36167 12.4167 11.5833Z'
+        stroke={color}
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+    </Svg>
+  )
+}
